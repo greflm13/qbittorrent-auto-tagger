@@ -33,7 +33,7 @@ def main():
             {"pattern": r"e-ac3", "tag": "EAC3"},
             {"pattern": r"[^e]ac3", "tag": "AC3"},
             {"pattern": r"dts[^-h]", "tag": "DTS"},
-            {"pattern": r"dts-?hd.[^m]", "tag": "DTS-HD"},
+            {"pattern": r"dts-?hd.[^ma]|dts-?hd$", "tag": "DTS-HD"},
             {"pattern": r"dts-hd.ma", "tag": "DTS-HD MA"},
             {"pattern": r"german", "tag": "GER"},
             {"pattern": r"[-. ]ger", "tag": "GER"},
