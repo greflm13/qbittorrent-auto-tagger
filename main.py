@@ -31,6 +31,8 @@ def main():
             {"pattern": r"4k", "tag": "2160p"},
             {"pattern": r"10bit", "tag": "HDR"},
             {"pattern": r"e-ac3", "tag": "EAC3"},
+            {"pattern": r"ddp", "tag": "EAC3"},
+            {"pattern": r"dd\+", "tag": "EAC3"},
             {"pattern": r"[^e]ac3", "tag": "AC3"},
             {"pattern": r"dts[^-h]", "tag": "DTS"},
             {"pattern": r"dts-?hd.[^ma]|dts-?hd$", "tag": "DTS-HD"},
