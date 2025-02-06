@@ -30,6 +30,7 @@ def main():
         regex = [
             {"pattern": r"4k", "tag": "2160p"},
             {"pattern": r"10bit", "tag": "HDR"},
+            {"pattern": r"true-hd", "tag": "TrueHD"},
             {"pattern": r"e-ac3", "tag": "EAC3"},
             {"pattern": r"ddp", "tag": "EAC3"},
             {"pattern": r"dd\+", "tag": "EAC3"},
@@ -41,8 +42,10 @@ def main():
             {"pattern": r"[-. ]ger", "tag": "GER"},
             {"pattern": r"[-. ]avc[-. ]", "tag": "H.264"},
             {"pattern": r"x264", "tag": "H.264"},
+            {"pattern": r"h264", "tag": "H.264"},
             {"pattern": r"hevc", "tag": "H.265"},
             {"pattern": r"x265", "tag": "H.265"},
+            {"pattern": r"h265", "tag": "H.265"},
         ]
         for pattern in case_sensitive:
             if pattern in name:
