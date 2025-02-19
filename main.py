@@ -7,7 +7,7 @@ import qbittorrentapi
 def argpar():
     parser = argparse.ArgumentParser()
     parser.add_argument("-l", "--host", help="qbittorrent url", required=True, type=str, dest="host")
-    parser.add_argument("-o", "--port", help="qbittorrent port", required=False, type=int, dest="port", default=80)
+    parser.add_argument("-o", "--port", help="qbittorrent port", required=False, type=int, dest="port", default=443)
     parser.add_argument("-u", "--user", help="qbittorrent user", required=True, type=str, dest="user")
     parser.add_argument("-p", "--password", help="qbittorrent password", required=True, type=str, dest="passw")
     return parser.parse_args()
@@ -16,7 +16,7 @@ def argpar():
 def main():
     args = argpar()
 
-    client = qbittorrentapi.Client(host=args.host, port=args.port, username=args.user, password=args.passw)
+    client = qbittorrentapi.Client(host=args.host, port=args.port, username=args.user, password=args.passw, VERIFY_WEBUI_CERTIFICATE=False)
     client.auth_log_in()
 
     torrentlist = client.torrents.info(sort="added_on")
@@ -34,6 +34,7 @@ def main():
             {"pattern": r"e-ac3", "tag": "EAC3"},
             {"pattern": r"ddp", "tag": "EAC3"},
             {"pattern": r"dd\+", "tag": "EAC3"},
+            {"pattern": r"[^a-z]dd[^a-z+]", "tag": "AC3"},
             {"pattern": r"[^e]ac3", "tag": "AC3"},
             {"pattern": r"dts[^-h]", "tag": "DTS"},
             {"pattern": r"dts-?hd.[^ma]|dts-?hd$", "tag": "DTS-HD"},
@@ -43,9 +44,11 @@ def main():
             {"pattern": r"[-. ]avc[-. ]", "tag": "H.264"},
             {"pattern": r"x264", "tag": "H.264"},
             {"pattern": r"h264", "tag": "H.264"},
+            {"pattern": r"h\.264", "tag": "H.264"},
             {"pattern": r"hevc", "tag": "H.265"},
             {"pattern": r"x265", "tag": "H.265"},
             {"pattern": r"h265", "tag": "H.265"},
+            {"pattern": r"h\.265", "tag": "H.265"},
         ]
         for pattern in case_sensitive:
             if pattern in name:
