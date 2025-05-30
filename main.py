@@ -34,7 +34,7 @@ def main():
 
     if args.tagnew:
         with open(configpath, "r", encoding="utf-8") as f:
-            knowntorrents = f.readlines()
+            knowntorrents = [name.removesuffix(os.linesep) for name in f.readlines()]
 
     client = qbittorrentapi.Client(host=args.host, port=args.port, username=args.user, password=args.passw, VERIFY_WEBUI_CERTIFICATE=False)
     client.auth_log_in()
@@ -84,7 +84,7 @@ def main():
                 if pattern["tag"] not in tags:
                     newtags.append(pattern["tag"])
         if args.tagnew:
-            if name + os.linesep not in knowntorrents:
+            if name not in knowntorrents:
                 newtags.append("new")
                 knowntorrents.append(name)
         if len(newtags) > 0:
