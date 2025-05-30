@@ -1,7 +1,21 @@
 import re
+import os
 import argparse
 
 import qbittorrentapi
+
+
+if "APPDATA" in os.environ:
+    confighome = os.environ["APPDATA"]
+elif "XDG_CONFIG_HOME" in os.environ:
+    confighome = os.environ["XDG_CONFIG_HOME"]
+else:
+    confighome = os.path.join(os.environ["HOME"], ".config")
+configpath = os.path.join(confighome, "qbittorrent-auto-tagger")
+if not os.path.exists(configpath):
+    if not os.path.exists(confighome):
+        os.makedirs(confighome)
+    open(configpath, "x", encoding="utf-8")
 
 
 def argpar():
@@ -10,11 +24,17 @@ def argpar():
     parser.add_argument("-o", "--port", help="qbittorrent port", required=False, type=int, dest="port", default=443)
     parser.add_argument("-u", "--user", help="qbittorrent user", required=True, type=str, dest="user")
     parser.add_argument("-p", "--password", help="qbittorrent password", required=True, type=str, dest="passw")
+    parser.add_argument("--tag-new", help="add a tag to all new torrents", required=False, action="store_true", dest="tagnew")
     return parser.parse_args()
 
 
 def main():
     args = argpar()
+    knowntorrents = []
+
+    if args.tagnew:
+        with open(configpath, "r", encoding="utf-8") as f:
+            knowntorrents = f.readlines()
 
     client = qbittorrentapi.Client(host=args.host, port=args.port, username=args.user, password=args.passw, VERIFY_WEBUI_CERTIFICATE=False)
     client.auth_log_in()
@@ -22,8 +42,8 @@ def main():
     torrentlist = client.torrents.info(sort="added_on")
 
     for torrent in torrentlist:
-        name = torrent["name"]
-        tags = [tag.strip() for tag in torrent["tags"].split(",")]
+        name = str(torrent["name"])
+        tags = [tag.strip() for tag in str(torrent["tags"]).split(",")]
         newtags = []
         case_sensitive = ["720p", "1080p", "2160p", "HDR"]
         case_insensitive = ["ATMOS", "AV1", "EAC3", "TrueHD", "OPUS", "IMAX"]
@@ -63,11 +83,20 @@ def main():
             if re.search(pattern["pattern"], name.lower()):
                 if pattern["tag"] not in tags:
                     newtags.append(pattern["tag"])
+        if args.tagnew:
+            if name + os.linesep not in knowntorrents:
+                newtags.append("new")
+                knowntorrents.append(name)
         if len(newtags) > 0:
             print(f"adding tags to {name}: {', '.join(set(newtags))}")
             torrent.add_tags(set(newtags))
 
     client.auth_log_out()
+
+    if args.tagnew:
+        with open(configpath, "w", encoding="utf-8") as f:
+            for name in knowntorrents:
+                f.write(name + os.linesep)
 
 
 if __name__ == "__main__":
