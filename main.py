@@ -1,21 +1,30 @@
 import re
 import os
+import yaml
 import argparse
 
 import qbittorrentapi
 
 
 if "APPDATA" in os.environ:
-    confighome = os.environ["APPDATA"]
+    CONFIGHOME = os.environ["APPDATA"]
 elif "XDG_CONFIG_HOME" in os.environ:
-    confighome = os.environ["XDG_CONFIG_HOME"]
+    CONFIGHOME = os.environ["XDG_CONFIG_HOME"]
 else:
-    confighome = os.path.join(os.environ["HOME"], ".config")
-configpath = os.path.join(confighome, "qbittorrent-auto-tagger")
-if not os.path.exists(configpath):
-    if not os.path.exists(confighome):
-        os.makedirs(confighome)
-    open(configpath, "x", encoding="utf-8")
+    CONFIGHOME = os.path.join(os.environ["HOME"], ".config")
+CONFIGPATH = os.path.join(CONFIGHOME, "qbittorrent-auto-tagger")
+KNOWNTORRENTS = os.path.join(CONFIGPATH, "known-torrents")
+CONFIGFILE = os.path.join(CONFIGPATH, "tags.yml")
+if not os.path.exists(CONFIGPATH):
+    if not os.path.exists(CONFIGHOME):
+        os.makedirs(CONFIGHOME)
+    os.makedirs(CONFIGPATH)
+if not os.path.exists(KNOWNTORRENTS):
+    open(KNOWNTORRENTS, "x", encoding="utf-8")
+if not os.path.exists(CONFIGFILE):
+    with open(CONFIGFILE, "w+", encoding="utf-8") as f:
+        empty = {"case_sensitive": [], "case_insensitive": [], "regex": []}
+        yaml.dump(empty, f)
 
 
 def argpar():
@@ -32,8 +41,11 @@ def main():
     args = argpar()
     knowntorrents = []
 
+    with open(CONFIGFILE, mode="r", encoding="utf-8") as f:
+        config = yaml.safe_load(f)
+
     if args.tagnew:
-        with open(configpath, "r", encoding="utf-8") as f:
+        with open(KNOWNTORRENTS, "r", encoding="utf-8") as f:
             knowntorrents = [name.removesuffix(os.linesep) for name in f.readlines()]
 
     client = qbittorrentapi.Client(host=args.host, port=args.port, username=args.user, password=args.passw, VERIFY_WEBUI_CERTIFICATE=False)
@@ -45,41 +57,15 @@ def main():
         name = str(torrent["name"])
         tags = [tag.strip() for tag in str(torrent["tags"]).split(",")]
         newtags = []
-        case_sensitive = ["720p", "1080p", "2160p", "HDR"]
-        case_insensitive = ["ATMOS", "AV1", "EAC3", "TrueHD", "OPUS", "IMAX"]
-        regex = [
-            {"pattern": r"4k", "tag": "2160p"},
-            {"pattern": r"10bit", "tag": "HDR"},
-            {"pattern": r"true-hd", "tag": "TrueHD"},
-            {"pattern": r"e-ac3", "tag": "EAC3"},
-            {"pattern": r"ddp", "tag": "EAC3"},
-            {"pattern": r"dd\+", "tag": "EAC3"},
-            {"pattern": r"[^a-z]dd[^a-z+]", "tag": "AC3"},
-            {"pattern": r"[^e]ac3", "tag": "AC3"},
-            {"pattern": r"dts[^-hx]", "tag": "DTS"},
-            {"pattern": r"dts-?hd.[^ma]|dts-?hd$", "tag": "DTS-HD"},
-            {"pattern": r"dts-hd.ma", "tag": "DTS-HD MA"},
-            {"pattern": r"dts-x", "tag": "DTS-X"},
-            {"pattern": r"german", "tag": "GER"},
-            {"pattern": r"[-. ]ger", "tag": "GER"},
-            {"pattern": r"[-. ]avc[-. ]", "tag": "H.264"},
-            {"pattern": r"x264", "tag": "H.264"},
-            {"pattern": r"h264", "tag": "H.264"},
-            {"pattern": r"h\.264", "tag": "H.264"},
-            {"pattern": r"hevc", "tag": "H.265"},
-            {"pattern": r"x265", "tag": "H.265"},
-            {"pattern": r"h265", "tag": "H.265"},
-            {"pattern": r"h\.265", "tag": "H.265"},
-        ]
-        for pattern in case_sensitive:
+        for pattern in config["case_sensitive"]:
             if pattern in name:
                 if pattern not in tags:
                     newtags.append(pattern)
-        for pattern in case_insensitive:
+        for pattern in config["case_insensitive"]:
             if pattern.lower() in name.lower():
                 if pattern not in tags:
                     newtags.append(pattern)
-        for pattern in regex:
+        for pattern in config["regex"]:
             if re.search(pattern["pattern"], name.lower()):
                 if pattern["tag"] not in tags:
                     newtags.append(pattern["tag"])
@@ -94,7 +80,7 @@ def main():
     client.auth_log_out()
 
     if args.tagnew:
-        with open(configpath, "w", encoding="utf-8") as f:
+        with open(KNOWNTORRENTS, "w", encoding="utf-8") as f:
             for name in knowntorrents:
                 f.write(name + os.linesep)
 

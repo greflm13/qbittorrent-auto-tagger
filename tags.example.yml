@@ -1,0 +1,81 @@
+case_sensitive:
+  - 720p
+  - 1080p
+  - 2160p
+  - HDR
+case_insensitive:
+  - ATMOS
+  - AV1
+  - EAC3
+  - TrueHD
+  - OPUS
+  - IMAX
+regex:
+  - pattern: 4k
+    tag: 2160p
+
+  - pattern: 10bit
+    tag: HDR
+
+  - pattern: true-hd
+    tag: TrueHD
+
+  - pattern: e-ac3
+    tag: EAC3
+
+  - pattern: ddp
+    tag: EAC3
+
+  - pattern: dd\+
+    tag: EAC3
+
+  - pattern: "[^a-z]dd[^a-z+]"
+    tag: AC3
+
+  - pattern: "[^e]ac3"
+    tag: AC3
+
+  - pattern: dts[^-hx]
+    tag: DTS
+
+  - pattern: dts-?hd.[^ma]|dts-?hd$
+    tag: DTS-HD
+
+  - pattern: dts-hd.ma
+    tag: DTS-HD MA
+
+  - pattern: dts-x
+    tag: DTS-X
+
+  - pattern: german
+    tag: GER
+
+  - pattern: "[-. ]ger"
+    tag: GER
+
+  - pattern: "[-. ]avc[-. ]"
+    tag: H.264
+
+  - pattern: x264
+    tag: H.264
+
+  - pattern: h264
+    tag: H.264
+
+  - pattern: h\.264
+    tag: H.264
+
+  - pattern: hevc
+    tag: H.265
+
+  - pattern: x265
+    tag: H.265
+
+  - pattern: h265
+    tag: H.265
+
+  - pattern: h\.265
+    tag: H.265
+
+  - pattern: flac
+    tag: FLAC
