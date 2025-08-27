@@ -46,7 +46,7 @@ def main():
 
     if args.tagnew:
         with open(KNOWNTORRENTS, "r", encoding="utf-8") as f:
-            knowntorrents = [name.removesuffix(os.linesep) for name in f.readlines()]
+            knowntorrents = f.readlines()
 
     client = qbittorrentapi.Client(host=args.host, port=args.port, username=args.user, password=args.passw, VERIFY_WEBUI_CERTIFICATE=False)
     client.auth_log_in()
@@ -70,9 +70,9 @@ def main():
                 if pattern["tag"] not in tags:
                     newtags.append(pattern["tag"])
         if args.tagnew:
-            if name not in knowntorrents:
+            if name + os.linesep not in knowntorrents:
                 newtags.append("new")
-                knowntorrents.append(name)
+                knowntorrents.append(name + os.linesep)
         if len(newtags) > 0:
             print(f"adding tags to {name}: {', '.join(set(newtags))}")
             torrent.add_tags(set(newtags))
@@ -81,8 +81,7 @@ def main():
 
     if args.tagnew:
         with open(KNOWNTORRENTS, "w", encoding="utf-8") as f:
-            for name in knowntorrents:
-                f.write(name + os.linesep)
+            f.writelines(knowntorrents)
 
 
 if __name__ == "__main__":
