@@ -1,10 +1,9 @@
-import re
-import os
-import yaml
 import argparse
+import os
+import re
 
 import qbittorrentapi
-
+import yaml
 
 if "APPDATA" in os.environ:
     CONFIGHOME = os.environ["APPDATA"]
@@ -41,11 +40,11 @@ def main():
     args = argpar()
     knowntorrents = []
 
-    with open(CONFIGFILE, mode="r", encoding="utf-8") as f:
+    with open(CONFIGFILE, encoding="utf-8") as f:
         config = yaml.safe_load(f)
 
     if args.tagnew:
-        with open(KNOWNTORRENTS, "r", encoding="utf-8") as f:
+        with open(KNOWNTORRENTS, encoding="utf-8") as f:
             knowntorrents = f.readlines()
 
     client = qbittorrentapi.Client(host=args.host, port=args.port, username=args.user, password=args.passw, VERIFY_WEBUI_CERTIFICATE=False)

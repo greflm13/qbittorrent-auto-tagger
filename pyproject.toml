@@ -1,0 +1,43 @@
+[build-system]
+    build-backend = "setuptools.build_meta"
+    requires      = ["setuptools>=61", "wheel"]
+
+[project]
+    description     = "Automatically tag torrents in qbittorrent"
+    name            = "qbittorrent-auto-tagger"
+    readme          = "README.md"
+    requires-python = ">=3.12"
+    version         = "0.0.1"
+
+    license = "AGPL-3.0-or-later"
+
+    authors = [{ name = "Flo Greistorfer" }]
+
+    dependencies = ["PyYAML~=6.0.3", "qbittorrent_api~=2026.5.1"]
+
+    [project.scripts]
+        qbittorrent-auto-tagger = "qbittorrent_auto_tagger.main:main"
+
+[dependency-groups]
+    dev = ["deptry", "pipreqs", "pyinstaller", "ruff"]
+
+[tool.setuptools.packages.find]
+    where = ["src"]
+
+[tool.setuptools.package-data]
+    qbittorrent-auto-tagger = []
+
+[tool.ruff]
+    line-length    = 140
+    target-version = "py312"
+
+    [tool.ruff.lint]
+        ignore = ["E501"]
+        select = ["B", "E", "F", "I", "UP"]
+
+    [tool.ruff.format]
+        indent-style = "space"
+        quote-style  = "double"
+
+[tool.deptry.per_rule_ignores]
+    DEP003 = "qbittorrent_auto_tagger"
